@@ -73,7 +73,7 @@ func CallFunc(vm *otto.Otto, method string, timeout time.Duration, params ...int
 	return value, err
 }
 
-func Execute(vm *otto.Otto, script string, timeout time.Duration, params ...interface{}) (value otto.Value, err error) {
+func Execute(vm *otto.Otto, script string, timeout time.Duration) (value otto.Value, err error) {
 
 	defer func() {
 		if exp := recover(); exp != nil {
@@ -96,8 +96,6 @@ func Execute(vm *otto.Otto, script string, timeout time.Duration, params ...inte
 	if value.IsFunction() {
 		return value, errors.New("not support javascript return type is 'function'")
 	}
-
-	_, _ = vm.Call("", nil, params...)
 
 	return value, err
 }
