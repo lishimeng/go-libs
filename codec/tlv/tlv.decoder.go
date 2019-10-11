@@ -7,10 +7,9 @@ import (
 	"fmt"
 )
 
-
 func DecodeData(tag *Tag, data []byte) {
 	switch tag.TagType {
-	case 0:// bool
+	case 0: // bool
 		tmp := BytesToInt(data[0:1])
 		tag.TagData = fmt.Sprintf("%d", tmp)
 		tag.TagTypeLabel = "bool"

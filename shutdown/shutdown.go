@@ -8,17 +8,17 @@ import (
 )
 
 type Configuration struct {
-	BeforeExit func(string)
+	BeforeExit       func(string)
 	AuthShutdownTime time.Duration
-	Signals []os.Signal
+	Signals          []os.Signal
 }
 
-var defaultSignals = []os.Signal{ syscall.SIGINT, syscall.SIGTERM }
+var defaultSignals = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 
 func WaitExit(config *Configuration) {
 
 	sigChan := make(chan os.Signal)
-	exitChan := make(chan struct{message string})
+	exitChan := make(chan struct{ message string })
 	if config != nil {
 		if len(config.Signals) > 0 {
 			defaultSignals = config.Signals
@@ -30,7 +30,7 @@ func WaitExit(config *Configuration) {
 	go func() {
 		if config != nil && config.AuthShutdownTime > time.Second {
 			time.Sleep(config.AuthShutdownTime)
-			exitChan <- struct{message string}{"auto"}
+			exitChan <- struct{ message string }{"auto"}
 		}
 	}()
 	select {

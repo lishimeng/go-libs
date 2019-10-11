@@ -15,7 +15,7 @@ type JsEngine interface {
 
 func Create(javascript string) (engine JsEngine, err error) {
 
-	return CreateWithTimeout(javascript, 10 * time.Millisecond)
+	return CreateWithTimeout(javascript, 10*time.Millisecond)
 }
 
 func CreateWithTimeout(javascript string, timeout time.Duration) (engine JsEngine, err error) {
@@ -28,8 +28,8 @@ func CreateWithTimeout(javascript string, timeout time.Duration) (engine JsEngin
 
 	if err == nil {
 		js := jsEngine{
-			script:javascript,
-			vm: vm,
+			script:           javascript,
+			vm:               vm,
 			maxExecutionTime: timeout,
 		}
 		engine = &js

@@ -8,4 +8,3 @@ import (
 func RegisterModel(models ...interface{}) {
 	orm.RegisterModel(models...)
 }
-

@@ -22,9 +22,9 @@ return {"a": 12, "b": "ffdasf"}
 	if err != nil {
 		return
 	}
-	switch ras.(type) {
+	switch r := ras.(type) {
 	case map[string]interface{}:
-		var result = ras.(map[string]interface{})
+		result := r
 		fmt.Println(result)
 	default:
 		fmt.Println("type err")

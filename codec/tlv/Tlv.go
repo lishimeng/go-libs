@@ -1,12 +1,11 @@
 package tlv
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 type Tag struct {
-
 	TagId        int32  `json:"tagId"`
 	TagType      int32  `json:"tagType"`
 	TagTypeLabel string `json:"tagTypeLabel"`
@@ -47,7 +46,6 @@ func DecodeToJson(tlvContent []byte) string {
 	return fmt.Sprint(string(s))
 }
 
-
-func Encode(frame *TagFrame) string{
+func Encode(frame *TagFrame) string {
 	return EncodeTlv(frame)
 }

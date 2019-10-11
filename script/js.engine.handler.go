@@ -6,17 +6,17 @@ import (
 )
 
 type jsEngine struct {
-	script string
-	vm *otto.Otto
+	script           string
+	vm               *otto.Otto
 	maxExecutionTime time.Duration
 }
 
-func (engine *jsEngine)Invoke(method string, params ...interface{}) (otto.Value, error) {
+func (engine *jsEngine) Invoke(method string, params ...interface{}) (otto.Value, error) {
 	res, err := CallFunc(engine.vm, method, engine.maxExecutionTime, params...)
 	return res, err
 }
 
-func (engine *jsEngine)Inject(name string, callback func(call otto.FunctionCall) otto.Value) {
+func (engine *jsEngine) Inject(name string, callback func(call otto.FunctionCall) otto.Value) {
 	_ = engine.vm.Set(name, callback)
 }
 

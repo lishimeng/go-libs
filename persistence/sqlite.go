@@ -3,10 +3,9 @@ package persistence
 import (
 	"github.com/astaxie/beego/orm"
 	//_ "github.com/mattn/go-sqlite3"
-	)
+)
 
 type SqliteConfig struct {
-
 	Database string
 }
 
