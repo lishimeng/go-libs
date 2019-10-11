@@ -38,24 +38,18 @@ func encodeTlvTag(tag *Tag) string {
 
 	switch tag.TagType {
 	case 0: // bool
-
 		n := StrToInt(tag.TagData)
 		content += string(IntToBytes(n, tag.TagLength))
-		break
 	case 1: // number
 		n := StrToInt(tag.TagData)
 		content += string(IntToBytes(n, tag.TagLength))
-		break
 	case 2: // enum
 		n := StrToInt(tag.TagData)
 		content += string(IntToBytes(n, tag.TagLength))
-		break
 	case 3: //txt
 		content += tag.TagData
-		break
 	default:
 		content += tag.TagData
-		break
 	}
 
 	return content

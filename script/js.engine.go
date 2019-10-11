@@ -23,7 +23,6 @@ func CreateWithTimeout(javascript string, timeout time.Duration) (engine JsEngin
 	vm := otto.New()
 	vm.Interrupt = make(chan func(), 1)
 	vm.SetStackDepthLimit(32)
-
 	err = LoadScript(vm, javascript, timeout)
 
 	if err == nil {

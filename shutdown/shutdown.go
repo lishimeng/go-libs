@@ -17,7 +17,7 @@ var defaultSignals = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 
 func WaitExit(config *Configuration) {
 
-	sigChan := make(chan os.Signal)
+	sigChan := make(chan os.Signal, 1)
 	exitChan := make(chan struct{ message string })
 	if config != nil {
 		if len(config.Signals) > 0 {
@@ -44,8 +44,9 @@ func WaitExit(config *Configuration) {
 func onExit(s string, config *Configuration) {
 
 	defer func() {
-		recover()
+		_ = recover()
 	}()
+
 	if config != nil && config.BeforeExit != nil {
 		config.BeforeExit(s)
 	}

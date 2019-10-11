@@ -13,28 +13,23 @@ func DecodeData(tag *Tag, data []byte) {
 		tmp := BytesToInt(data[0:1])
 		tag.TagData = fmt.Sprintf("%d", tmp)
 		tag.TagTypeLabel = "bool"
-		break
 	case 1:
 		//number
 		tmp := BytesToInt(data)
 		tag.TagData = fmt.Sprintf("%d", tmp)
 		tag.TagTypeLabel = "number"
-		break
 	case 2:
 		// enum/num
 		tmp := BytesToInt(data[0:1])
 		tag.TagData = fmt.Sprintf("%d", tmp)
 		tag.TagTypeLabel = "enum"
-		break
 	case 3:
 		// txt
 		tag.TagData = string(data)
 		tag.TagTypeLabel = "txt"
-		break
 	default:
 		tag.TagData = string(data)
 		tag.TagTypeLabel = "extra"
-		break
 	}
 }
 
