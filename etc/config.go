@@ -7,20 +7,20 @@ import (
 	"path/filepath"
 )
 
-func LoadEnvs(configName string, envPath []string, Config interface{}) error {
+func LoadEnvs(configName string, envPath []string, Config interface{}) (f string, err error) {
 
 	for _, path := range envPath {
 		file := fmt.Sprintf("%s/%s", path, configName)
-		f, err := filepath.Abs(file)
+		f, err = filepath.Abs(file)
 		if err != nil {
 			continue
 		} else {
 			if _, err := toml.DecodeFile(f, Config); err != nil {
-				return err
+				return f, err
 			} else {
-				return nil
+				return f, err
 			}
 		}
 	}
-	return errors.New("can't find config file")
+	return f, errors.New("can't find config file")
 }
