@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"os"
 	"path/filepath"
 )
 
@@ -23,4 +24,18 @@ func LoadEnvs(configName string, envPath []string, Config interface{}) (f string
 		}
 	}
 	return f, errors.New("can't find config file")
+}
+
+func SaveEnvs(filename string, config interface{}) (err error) {
+
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+	enc := toml.NewEncoder(f)
+	err = enc.Encode(&config)
+	return err
 }
