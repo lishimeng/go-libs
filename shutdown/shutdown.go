@@ -4,21 +4,20 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 type Configuration struct {
-	BeforeExit       func(string)
-	AuthShutdownTime time.Duration
-	Signals          []os.Signal
+	BeforeExit func(string)
+	Signals    []os.Signal
 }
 
 var defaultSignals = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
+var exitChan = make(chan struct{ message string })
 
 func WaitExit(config *Configuration) {
 
 	sigChan := make(chan os.Signal, 1)
-	exitChan := make(chan struct{ message string })
+
 	if config != nil {
 		if len(config.Signals) > 0 {
 			defaultSignals = config.Signals
@@ -27,12 +26,6 @@ func WaitExit(config *Configuration) {
 
 	signal.Notify(sigChan, defaultSignals...)
 
-	go func() {
-		if config != nil && config.AuthShutdownTime > time.Second {
-			time.Sleep(config.AuthShutdownTime)
-			exitChan <- struct{ message string }{"auto"}
-		}
-	}()
 	select {
 	case s := <-exitChan:
 		onExit(s.message, config)
@@ -50,4 +43,8 @@ func onExit(s string, config *Configuration) {
 	if config != nil && config.BeforeExit != nil {
 		config.BeforeExit(s)
 	}
+}
+
+func Exit(msg string) {
+	exitChan <- struct{ message string }{msg}
 }
