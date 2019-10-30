@@ -8,53 +8,48 @@ type Component func(app *iris.Application)
 type ServerConfig struct {
 	Listen string
 }
-type Server interface {
-	Start(components ...Component)
-	RegisterComponent(component Component)
-	SetHomePage(indexHtml string)
-	OnErrorCode(code int, onErr func(ctx iris.Context))
-	ConfigExtra(handler func(app *iris.Application))
-}
 
-type server struct {
+type Server struct {
 	config ServerConfig
 
 	proxy *iris.Application
 }
 
-func Init(config ServerConfig) (handler *Server) {
+func New(config ServerConfig) (handler *Server) {
 
-	s := server{
+	s := Server{
 		config: config,
 		proxy:  iris.New(),
 	}
-	var h Server = &s
-	handler = &h
-	return handler
+	return &s
 }
 
-func (s *server) RegisterComponent(component Component) {
+func (s *Server) RegisterComponent(component Component) *Server {
 	component(s.proxy)
+	return s
 }
 
-func (s *server) ConfigExtra(handler func(app *iris.Application)) {
+func (s *Server) AdvancedConfig(handler func(app *iris.Application)) *Server {
 
 	if handler != nil {
 		handler(s.proxy)
 	}
+	return s
 }
 
-func (s *server) SetHomePage(indexHtml string) {
+func (s *Server) SetHomePage(indexHtml string) *Server {
 	s.proxy.Get("/", func(c iris.Context) {
 		_, _ = c.HTML(indexHtml)
 	})
+	return s
 }
 
-func (s *server) OnErrorCode(code int, onErr func(ctx iris.Context)) {
+func (s *Server) OnErrorCode(code int, onErr func(ctx iris.Context)) *Server {
 	s.proxy.OnErrorCode(code, onErr)
+	return s
 }
 
-func (s *server) Start(components ...Component) {
+func (s *Server) Start(components ...Component) {
 
 	if len(components) > 0 {
 		for _, component := range components {
