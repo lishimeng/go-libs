@@ -61,8 +61,9 @@ func (s *Server) RegisterComponents(components ...Component) *Server {
 	return s
 }
 
-func (s *Server) SetHttpHandler(handler http.Handler) {
+func (s *Server) SetHttpHandler(handler http.Handler) *Server {
 	s.handler = handler
+	return s
 }
 
 func (s *Server) Start() {
