@@ -51,13 +51,14 @@ func (s *Server) OnErrorCode(code int, onErr func(ctx iris.Context)) *Server {
 	return s
 }
 
-func (s *Server) RegisterComponents(components ...Component) {
+func (s *Server) RegisterComponents(components ...Component) *Server {
 
 	if len(components) > 0 {
 		for _, component := range components {
 			s.RegisterComponent(component)
 		}
 	}
+	return s
 }
 
 func (s *Server) SetHttpHandler(handler http.Handler) {
