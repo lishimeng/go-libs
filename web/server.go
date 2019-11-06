@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/kataras/iris"
+	"net/http"
 )
 
 type Component func(app *iris.Application)
@@ -10,7 +11,8 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	config ServerConfig
+	config  ServerConfig
+	handler http.Handler
 
 	proxy *iris.Application
 }
@@ -49,12 +51,27 @@ func (s *Server) OnErrorCode(code int, onErr func(ctx iris.Context)) *Server {
 	return s
 }
 
-func (s *Server) Start(components ...Component) {
+func (s *Server) RegisterComponents(components ...Component) {
 
 	if len(components) > 0 {
 		for _, component := range components {
 			s.RegisterComponent(component)
 		}
 	}
-	_ = s.proxy.Run(iris.Addr(s.config.Listen))
+}
+
+func (s *Server) SetHttpHandler(handler http.Handler) {
+	s.handler = handler
+}
+
+func (s *Server) Start() {
+	if s.handler != nil {
+		svr := http.Server{
+			Addr:    s.config.Listen,
+			Handler: s.handler,
+		}
+		_ = s.proxy.Run(iris.Server(&svr))
+	} else {
+		_ = s.proxy.Run(iris.Addr(s.config.Listen))
+	}
 }
