@@ -11,43 +11,44 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	config  ServerConfig
-	handler http.Handler
+	config   ServerConfig
+	delegate *multiHandlerServer
 
-	proxy *iris.Application
+	primaryProxy *iris.Application
 }
 
 func New(config ServerConfig) (handler *Server) {
 
 	s := Server{
-		config: config,
-		proxy:  iris.New(),
+		config:       config,
+		primaryProxy: iris.New(),
+		delegate:     newServer(),
 	}
 	return &s
 }
 
 func (s *Server) RegisterComponent(component Component) *Server {
-	component(s.proxy)
+	component(s.primaryProxy)
 	return s
 }
 
 func (s *Server) AdvancedConfig(handler func(app *iris.Application)) *Server {
 
 	if handler != nil {
-		handler(s.proxy)
+		handler(s.primaryProxy)
 	}
 	return s
 }
 
 func (s *Server) SetHomePage(indexHtml string) *Server {
-	s.proxy.Get("/", func(c iris.Context) {
+	s.primaryProxy.Get("/", func(c iris.Context) {
 		_, _ = c.HTML(indexHtml)
 	})
 	return s
 }
 
 func (s *Server) OnErrorCode(code int, onErr func(ctx iris.Context)) *Server {
-	s.proxy.OnErrorCode(code, onErr)
+	s.primaryProxy.OnErrorCode(code, onErr)
 	return s
 }
 
@@ -61,19 +62,19 @@ func (s *Server) RegisterComponents(components ...Component) *Server {
 	return s
 }
 
-func (s *Server) SetHttpHandler(handler http.Handler) *Server {
-	s.handler = handler
+func (s *Server) AddHttpHandler(schema string, pathGroup string, handler http.Handler) *Server {
+	if s.delegate != nil {
+		s.delegate.RegisterHandler(schema, pathGroup, handler)
+	}
+
 	return s
 }
 
-func (s *Server) Start() {
-	if s.handler != nil {
-		svr := http.Server{
-			Addr:    s.config.Listen,
-			Handler: s.handler,
-		}
-		_ = s.proxy.Run(iris.Server(&svr))
-	} else {
-		_ = s.proxy.Run(iris.Addr(s.config.Listen))
+func (s *Server) Start() error {
+	s.AddHttpHandler("http", "/", s.primaryProxy)
+	svr := http.Server{
+		Addr:    s.config.Listen,
+		Handler: s.delegate,
 	}
+	return svr.ListenAndServe()
 }
