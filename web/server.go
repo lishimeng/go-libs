@@ -71,10 +71,10 @@ func (s *Server) AddHttpHandler(schema string, pathGroup string, handler http.Ha
 }
 
 func (s *Server) Start() error {
-	s.AddHttpHandler("http", "/", s.primaryProxy)
-	svr := http.Server{
+	s.AddHttpHandler(defaultSchema, "/", s.primaryProxy)
+	srv := http.Server{
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
 	}
-	return svr.ListenAndServe()
+	return s.primaryProxy.Run(iris.Server(&srv))
 }

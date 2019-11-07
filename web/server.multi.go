@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const (
+	defaultSchema = "http"
+)
+
 type multiHandlerServer struct {
 	schemas map[string]map[string]string // schema: { pathRegex: handlerIndex(schema+pathRegex) }
 
@@ -43,6 +47,9 @@ func findProxy(m *multiHandlerServer, req *http.Request) (handler http.Handler) 
 	p := req.URL.Path
 	p = cleanPath(p)
 	schema := req.URL.Scheme
+	if schema == "" {
+		schema = defaultSchema
+	}
 
 	if handlerGroup, hasSchema := m.schemas[schema]; hasSchema {
 		handlerKey, exist := matchWithRegex(handlerGroup, p)
