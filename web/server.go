@@ -76,5 +76,5 @@ func (s *Server) Start() error {
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
 	}
-	return s.primaryProxy.Run(iris.Server(&srv))
+	return srv.ListenAndServe()
 }
