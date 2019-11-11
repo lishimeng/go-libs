@@ -71,6 +71,9 @@ func (s *Server) AddHttpHandler(schema string, pathGroup string, handler http.Ha
 }
 
 func (s *Server) Start() error {
+	if err := s.primaryProxy.Build(); err != nil {
+		return err
+	}
 	s.AddHttpHandler(defaultSchema, "/", s.primaryProxy)
 	srv := http.Server{
 		Addr:    s.config.Listen,
