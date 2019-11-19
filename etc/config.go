@@ -13,13 +13,9 @@ func LoadEnvs(configName string, envPath []string, Config interface{}) (f string
 	for _, path := range envPath {
 		file := fmt.Sprintf("%s/%s", path, configName)
 		f, err = filepath.Abs(file)
-		if err != nil {
-			continue
-		} else {
-			if _, err := toml.DecodeFile(f, Config); err != nil {
-				return f, err
-			} else {
-				return f, err
+		if err == nil {
+			if _, err = toml.DecodeFile(f, Config); err == nil {
+				return // config file is exist
 			}
 		}
 	}
