@@ -15,6 +15,7 @@ require (
 	github.com/iris-contrib/blackfriday v2.0.0+incompatible // indirect
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect
 	github.com/iris-contrib/go.uuid v2.0.0+incompatible // indirect
+	github.com/jeanphorn/log4go v0.0.0-20190526082429-7dbb8deb9468
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/kataras/golog v0.0.9 // indirect
 	github.com/kataras/iris v11.1.1+incompatible
@@ -23,6 +24,7 @@ require (
 	github.com/robertkrimen/otto v0.0.0-20180617131154-15f95af6e78d
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/toolkits/file v0.0.0-20160325033739-a5b3c5147e07 // indirect
 	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
 	golang.org/x/tools v0.0.0-20191010201905-e5ffc44a6fee // indirect
 	google.golang.org/appengine v1.6.1 // indirect
