@@ -2,7 +2,7 @@ package log
 
 import (
 	"fmt"
-	delegate "github.com/jeanphorn/log4go"
+	delegate "github.com/lishimeng/log4go"
 )
 
 type Level int
@@ -27,6 +27,10 @@ var levels = map[string]Level{
 	"WARNING":  WARNING,
 	"ERROR":    ERROR,
 	"CRITICAL": CRITICAL,
+}
+
+func init() {
+	delegate.CallerSkip = 3 // wrapper一层skip+1
 }
 
 func FormatLevel(lvl string) (level Level, err error) {
