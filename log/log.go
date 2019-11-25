@@ -64,13 +64,15 @@ func AddFileLog(name string, lvl Level, file string, rotate bool, daily bool, fo
 }
 
 func Remove(name string) {
+	defer func() {
+		_ = recover()
+	}()
 	if item, ok := delegate.Global[name]; ok {
 		delete(delegate.Global, name)
 		if item != nil {
 			item.Close()
 			item = nil
 		}
-		delegate.Debug("remove log:%s", name)
 	}
 }
 
