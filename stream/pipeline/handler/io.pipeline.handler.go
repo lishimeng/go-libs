@@ -3,21 +3,11 @@ package handler
 import "fmt"
 
 type Handler interface {
-	Context
-	Rx(input interface{}) (err error)
-	Tx(input interface{}) (err error)
+	Rx(input interface{}, ctx *Context) (err error)
+	Tx(input interface{}, ctx *Context) (err error)
 }
 
-type Context interface {
-	RxLen() int
-	TxLen() int
-	RxWrite(data interface{})
-	RxRead() (data interface{}, err error)
-	TxWrite(data interface{})
-	TxRead() (data interface{}, err error)
-}
-
-type ChanBasedContext struct {
+type Context struct {
 	rx     chan interface{}
 	tx     chan interface{}
 	txSize int
@@ -26,30 +16,29 @@ type ChanBasedContext struct {
 
 func NewContext(rxCapacity int, txCapacity int) *Context {
 
-	c := &ChanBasedContext{
+	c := &Context{
 		rx:     make(chan interface{}, rxCapacity),
 		tx:     make(chan interface{}, txCapacity),
 		rxSize: 0,
 		txSize: 0,
 	}
-	var inter Context = c
-	return &inter
+	return c
 }
 
-func (ccb *ChanBasedContext) RxLen() int {
+func (ccb *Context) RxLen() int {
 	return ccb.rxSize
 }
 
-func (ccb *ChanBasedContext) TxLen() int {
+func (ccb *Context) TxLen() int {
 	return ccb.txSize
 }
 
-func (ccb *ChanBasedContext) RxWrite(data interface{}) {
+func (ccb *Context) RxWrite(data interface{}) {
 	ccb.rx <- data
 	ccb.rxSize++
 }
 
-func (ccb *ChanBasedContext) RxRead() (data interface{}, err error) {
+func (ccb *Context) RxRead() (data interface{}, err error) {
 	if ccb.rxSize > 0 {
 		data = <-ccb.rx
 		ccb.rxSize--
@@ -59,12 +48,12 @@ func (ccb *ChanBasedContext) RxRead() (data interface{}, err error) {
 	return
 }
 
-func (ccb *ChanBasedContext) TxWrite(data interface{}) {
+func (ccb *Context) TxWrite(data interface{}) {
 	ccb.tx <- data
 	ccb.txSize++
 }
 
-func (ccb *ChanBasedContext) TxRead() (data interface{}, err error) {
+func (ccb *Context) TxRead() (data interface{}, err error) {
 	if ccb.txSize > 0 {
 		data = <-ccb.tx
 		ccb.txSize--

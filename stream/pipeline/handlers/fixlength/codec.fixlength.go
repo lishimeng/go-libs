@@ -7,7 +7,6 @@ import (
 )
 
 type coder struct {
-	handler.Context
 	length    int
 	decodeBuf *bytes.Buffer
 	encodeBuf *bytes.Buffer
@@ -16,7 +15,6 @@ type coder struct {
 func New(length int) handler.Handler {
 
 	coder := &coder{
-		Context:   *handler.NewContext(8, 8),
 		length:    length,
 		decodeBuf: new(bytes.Buffer),
 		encodeBuf: new(bytes.Buffer),
@@ -25,7 +23,7 @@ func New(length int) handler.Handler {
 	return c
 }
 
-func (c *coder) Rx(input interface{}) (err error) {
+func (c *coder) Rx(input interface{}, ctx *handler.Context) (err error) {
 
 	log.Fine("byte raw decode")
 	if in, ok := input.([]byte); ok {
@@ -40,12 +38,12 @@ func (c *coder) Rx(input interface{}) (err error) {
 		if err != nil {
 			return
 		}
-		c.RxWrite(p)
+		ctx.RxWrite(p)
 	}
 	return
 }
 
-func (c coder) Tx(input interface{}) (err error) {
+func (c coder) Tx(input interface{}, ctx *handler.Context) (err error) {
 
 	if in, ok := input.([]byte); ok {
 		c.encodeBuf.Write(in)
@@ -57,7 +55,7 @@ func (c coder) Tx(input interface{}) (err error) {
 		if err != nil {
 			return
 		}
-		c.TxWrite(p)
+		ctx.TxWrite(p)
 	}
 	return
 }

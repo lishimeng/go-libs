@@ -1,15 +1,12 @@
 package pipeline
 
 import (
-	"encoding/hex"
 	"fmt"
-	"github.com/lishimeng/go-libs/log"
 	"github.com/lishimeng/go-libs/stream/pipeline/handler"
 )
 
 func (p *Pipeline) OnRx(data []byte) {
 
-	log.Fine("OnRx:%s", hex.EncodeToString(data))
 	var message = MessageContext{
 		payload: data,
 		meta:    nil,
@@ -24,30 +21,26 @@ func (p *Pipeline) handleRx(message MessageContext) (err error) {
 
 	var nextHandler handler.Handler
 	var nextMeta handler.Meta
+	var ctx *handler.Context
 	if message.meta == nil {
-		nextHandler, nextMeta, err = p.rx.FirstHandler(handler.SortASC)
+		nextHandler, nextMeta, ctx, err = p.rx.FirstHandler(handler.SortASC)
 	} else if p.rx.HasNext(*message.meta, handler.SortASC) {
-		nextHandler, nextMeta, err = p.rx.NextHandler(*message.meta)
+		nextHandler, nextMeta, ctx, err = p.rx.NextHandler(*message.meta)
 	} else {
-		fmt.Printf("没有handler了,打印Payload:%v", message.payload)
 		return
 	}
 
 	if err != nil {
 		return
 	}
-	err = nextHandler.Rx(message.payload)
+	err = nextHandler.Rx(message.payload, ctx)
 	if err != nil {
 		return
 	}
-	var n = 0
-	var context handler.Context = nextHandler
-	if context != nil {
-		n = context.RxLen()
-	}
+	var n = ctx.RxLen()
 	for i := 0; i < n; i++ {
 		var r interface{}
-		r, err = nextHandler.RxRead()
+		r, err = ctx.RxRead()
 		if err == nil {
 			ctx := MessageContext{
 				payload: r,
@@ -62,45 +55,49 @@ func (p *Pipeline) handleRx(message MessageContext) (err error) {
 	return
 }
 
-func (p *Pipeline) OnTx(data interface{}) {
+func (p *Pipeline) Tx(data interface{}) (err error) {
 	var message = MessageContext{
 		payload: data,
 		meta:    nil,
 	}
-	err := p.handleTx(message)
+	err = p.handleTx(message)
 	if err != nil {
 		fmt.Println(err)
 	}
+	return
 }
 
 func (p *Pipeline) handleTx(message MessageContext) (err error) {
 
 	var nextHandler handler.Handler
 	var nextMeta handler.Meta
+	var ctx *handler.Context
 	if message.meta == nil {
-		nextHandler, nextMeta, err = p.tx.FirstHandler(handler.SortDESC)
-	} else if p.tx.HasNext(*message.meta, handler.SortDESC) {
-		nextHandler, nextMeta, err = p.tx.NextHandler(*message.meta)
+		nextHandler, nextMeta, ctx, err = p.tx.FirstHandler(handler.SortDESC)
 	} else {
-		return
+		if p.tx.HasNext(*message.meta, handler.SortDESC) {
+			nextHandler, nextMeta, ctx, err = p.tx.NextHandler(*message.meta)
+		} else {
+			data, isBytes := message.payload.([]byte)
+			if isBytes && p.writer != nil {
+				_, err = p.writer.Write(data)
+			}
+			return
+		}
 	}
 
 	if err != nil {
 		return
 	}
-	err = nextHandler.Tx(message.payload)
+	err = nextHandler.Tx(message.payload, ctx)
 
 	if err != nil {
 		return
 	}
-	var n = 0
-	var context handler.Context = nextHandler
-	if context != nil {
-		n = context.TxLen()
-	}
+	var n = ctx.TxLen()
 	for i := 0; i < n; i++ {
 		var r interface{}
-		r, err = nextHandler.TxRead()
+		r, err = ctx.TxRead()
 		if err == nil {
 			ctx := MessageContext{
 				payload: r,

@@ -20,6 +20,7 @@ func (c Meta) Index() int {
 
 type Container struct {
 	coders map[string]Handler
+	ctx    map[string]*Context
 	metas  map[string]Meta
 	ens    []string
 }

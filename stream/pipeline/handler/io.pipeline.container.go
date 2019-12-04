@@ -9,6 +9,7 @@ func NewContainer() (container *Container) {
 	container = &Container{
 		coders: make(map[string]Handler),
 		metas:  make(map[string]Meta),
+		ctx:    make(map[string]*Context),
 	}
 	return container
 }
@@ -33,15 +34,13 @@ func (c *Container) Register(handler Handler, meta ...Meta) (err error) {
 		return
 	}
 
-	if !checkHandler(handler) {
-		err = fmt.Errorf("object must implement Context")
-		return
-	}
+	ctx := NewContext(8, 8) // TODO
 
 	currentHandlerSize := len(c.ens)
 	name := fmt.Sprintf("coder_%d_%d", currentHandlerSize, time.Now().UnixNano())
 	index := len(c.ens)
 	c.coders[name] = handler
+	c.ctx[name] = ctx
 	c.ens = append(c.ens, name)
 	var m Meta
 	if len(meta) > 0 {
@@ -57,26 +56,12 @@ func (c *Container) Register(handler Handler, meta ...Meta) (err error) {
 	return
 }
 
-func checkHandler(handler Handler) (b bool) {
-
-	defer func() {
-		if err := recover(); err != nil {
-			b = false
-		}
-	}()
-	handler.TxLen()
-	b = true
-	return
-}
-
 func (c Container) HasNext(meta Meta, sort CoderSort) bool {
-
 	nextIndex := calcNextIndex(meta.index, sort)
 	return validIndex(nextIndex, len(c.ens))
 }
 
 func validIndex(index int, cap int) bool {
-
 	return index >= 0 && index < cap
 }
 
@@ -90,36 +75,41 @@ func calcNextIndex(current int, sort CoderSort) (next int) {
 	return
 }
 
-func (c *Container) Get(name string) (handler Handler, meta Meta, err error) {
+func (c *Container) Get(name string) (handler Handler, meta Meta, ctx *Context, err error) {
 
 	handler, ok := c.coders[name]
 	if !ok {
-		err = fmt.Errorf("no codec named:%s", name)
+		err = fmt.Errorf("no handler named:%s", name)
+		return
 	}
-	if ok {
-		meta, ok = c.metas[name]
-		if !ok {
-			err = fmt.Errorf("no codec meta named:%s", name)
-		}
+	meta, ok = c.metas[name]
+	if !ok {
+		err = fmt.Errorf("no handler meta named:%s", name)
+		return
+	}
+	ctx, ok = c.ctx[name]
+	if !ok {
+		err = fmt.Errorf("no handler ctx named:%s", name)
+		return
 	}
 	return
 }
 
-func (c *Container) Next(currentMeta Meta, sort CoderSort) (handler Handler, meta Meta, err error) {
+func (c *Container) Next(currentMeta Meta, sort CoderSort) (handler Handler, meta Meta, ctx *Context, err error) {
 	// calc next index
 	var nextIndex = calcNextIndex(currentMeta.index, sort)
 	if !validIndex(nextIndex, len(c.ens)) {
-		err = fmt.Errorf("there is no more codec exist")
+		err = fmt.Errorf("there is no more handler exist")
 		return
 	}
 	return c.getHandler(nextIndex)
 }
 
-func (c *Container) FirstHandler(sort CoderSort) (handler Handler, meta Meta, err error) {
+func (c *Container) FirstHandler(sort CoderSort) (handler Handler, meta Meta, ctx *Context, err error) {
 	// 0--len(coders)
 	// calc next index
 	if len(c.ens) == 0 {
-		err = fmt.Errorf("there is no more codec exist")
+		err = fmt.Errorf("can't find first handler")
 		return
 	}
 	var nextIndex int
@@ -131,7 +121,7 @@ func (c *Container) FirstHandler(sort CoderSort) (handler Handler, meta Meta, er
 	return c.getHandler(nextIndex)
 }
 
-func (c *Container) getHandler(index int) (handler Handler, meta Meta, err error) {
+func (c *Container) getHandler(index int) (handler Handler, meta Meta, ctx *Context, err error) {
 	name := c.ens[index]
 	return c.Get(name)
 }

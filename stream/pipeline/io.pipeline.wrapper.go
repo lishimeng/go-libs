@@ -10,6 +10,8 @@ func New(rwc io.ReadWriteCloser, container handler.Container) (pipe *Pipeline, r
 
 	pipe = newPipeline(container)
 	r = reactor.New(rwc)
-	r.DataListener(pipe.OnRx)
+	r.DataListener(pipe.OnRx) // pipeline <- reactor
+	pipe.writer = r.Writer    // reactor <- pipeline
+
 	return
 }

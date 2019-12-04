@@ -1,10 +1,14 @@
 package pipeline
 
-import "github.com/lishimeng/go-libs/stream/pipeline/handler"
+import (
+	"github.com/lishimeng/go-libs/stream/pipeline/handler"
+	"io"
+)
 
 type Pipeline struct {
-	tx *handler.TxContainer
-	rx *handler.RxContainer
+	tx     *handler.TxContainer
+	rx     *handler.RxContainer
+	writer io.Writer
 }
 
 type MessageContext struct {
