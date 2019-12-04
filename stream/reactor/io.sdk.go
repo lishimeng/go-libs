@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/lishimeng/go-libs/log"
 	"io"
 	"time"
 )
@@ -70,6 +69,10 @@ func (s *Stream) DataListener(listener func([]byte)) {
 	s.mode = ModeAsync
 }
 
+func (s *Stream) OnConnectionLost(listener func(reason error)) {
+	s.onLostConnect = listener
+}
+
 func (s *Stream) Write(p []byte) (n int, err error) {
 	return s.Writer.Write(p)
 }
@@ -86,15 +89,12 @@ func (s *Stream) ReadSync(p []byte, timeout time.Duration) (err error) {
 	var timer *time.Timer
 	// 直接读
 	if s.buf.Len() >= len(p) {
-		log.Fine("直接读:%d", len(p))
 		_, err = s.buf.Read(p)
 		return
 	}
 	timer = time.NewTimer(timeout)
-	log.Fine("阻塞读:%d[%d]", len(p), timeout)
 	defer func() {
 		if timer != nil {
-			log.Fine("撤销timeout")
 			timer.Stop()
 		}
 	}()
@@ -109,9 +109,7 @@ func (s *Stream) ReadSync(p []byte, timeout time.Duration) (err error) {
 }
 
 func (s *Stream) Close() {
-	log.Fine("close chan")
 	close(s.closeChan)
-	log.Fine("wait 2000ms")
 	time.Sleep(time.Millisecond * 2000)
 	if s.Closer != nil {
 		err := s.Closer.Close()
