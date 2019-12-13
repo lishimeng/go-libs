@@ -2,37 +2,31 @@ package serial
 
 import (
 	"github.com/lishimeng/go-libs/log"
-	delegate "github.com/tarm/goserial"
+	delegate "github.com/tarm/serial"
 	"io"
 )
 
-type Connector struct {
-	// 码率
-	BaudRate uint
+type Config delegate.Config
 
-	// 串口
-	PortName string
+type Connector struct {
+	config *Config
 
 	Ser io.ReadWriteCloser
 }
 
-func New(rate uint, name string) *Connector {
+func New(config *Config) *Connector {
 
 	return &Connector{
-		BaudRate: rate,
-		PortName: name,
+		config: config,
 	}
 }
 
 func (c *Connector) Connect() (err error) {
-	log.Fine("open connect: %s[%d]", c.PortName, c.BaudRate)
-	serialOptions := &delegate.Config{
-		Name: c.PortName,
-		Baud: int(c.BaudRate),
-	}
-	c.Ser, err = delegate.OpenPort(serialOptions)
+	log.Fine("open connect: %s[%d]", c.config.Name, c.config.Baud)
+	var conf = (*delegate.Config)(c.config)
+	c.Ser, err = delegate.OpenPort(conf)
 	if err != nil {
-		log.Fine("can't connect to: %s[%d], %s", c.PortName, c.BaudRate, err.Error())
+		log.Fine("can't connect to: %s[%d], %s", c.config.Name, c.config.Baud, err.Error())
 		return
 	}
 	log.Fine("connect success")
@@ -40,6 +34,6 @@ func (c *Connector) Connect() (err error) {
 }
 
 func (c Connector) Close() error {
-	log.Fine("close the connection: %s", c.PortName)
+	log.Fine("close the connection: %s", c.config.Name)
 	return c.Ser.Close()
 }
