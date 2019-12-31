@@ -5,7 +5,9 @@ import (
 )
 
 //RegisterModel
-func RegisterDriver(driver string, t int) (err error) {
+type DriverType orm.DriverType
+
+func RegisterDriver(driver string, t DriverType) (err error) {
 	err = orm.RegisterDriver(driver, orm.DriverType(t))
 	return
 }
