@@ -7,17 +7,19 @@ import (
 //RegisterModel
 type DriverType orm.DriverType
 
-const (
-	_          DriverType = iota // int enum type
-	DRMySQL                      // mysql
-	DRSqlite                     // sqlite
-	DROracle                     // oracle
-	DRPostgres                   // pgsql
-	DRTiDB                       // TiDB
-)
+type Driver struct {
+	name string
+	t    orm.DriverType
+}
 
-func RegisterDriver(driver string, t DriverType) (err error) {
-	err = orm.RegisterDriver(driver, orm.DriverType(t))
+var DriverMysql = Driver{"mysql", orm.DRMySQL}
+var DriverSqlite = Driver{"mysql", orm.DRSqlite}
+var DriverOracle = Driver{"mysql", orm.DROracle}
+var DriverPostgres = Driver{"mysql", orm.DRPostgres}
+var DriverTiDB = Driver{"mysql", orm.DRTiDB}
+
+func RegisterDriver(driver Driver) (err error) {
+	err = orm.RegisterDriver(driver.name, driver.t)
 	return
 }
 
