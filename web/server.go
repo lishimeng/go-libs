@@ -11,18 +11,27 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	config   ServerConfig
-	delegate *multiHandlerServer
-
-	primaryProxy *iris.Application
+	config        ServerConfig
+	delegate      *multiHandlerServer
+	primaryProxy  *iris.Application
+	primaryPath   string
+	primarySchema string
 }
+
+const (
+	SchemaHttp    = "http"
+	SchemaHttps   = "https"
+	DefaultSchema = SchemaHttp
+)
 
 func New(config ServerConfig) (handler *Server) {
 
 	s := Server{
-		config:       config,
-		primaryProxy: iris.New(),
-		delegate:     newServer(),
+		config:        config,
+		primaryProxy:  iris.New(),
+		delegate:      newServer(),
+		primaryPath:   "/",
+		primarySchema: DefaultSchema,
 	}
 	return &s
 }
@@ -66,7 +75,6 @@ func (s *Server) AddHttpHandler(schema string, pathGroup string, handler http.Ha
 	if s.delegate != nil {
 		s.delegate.RegisterHandler(schema, pathGroup, handler)
 	}
-
 	return s
 }
 
@@ -74,7 +82,7 @@ func (s *Server) Start() error {
 	if err := s.primaryProxy.Build(); err != nil {
 		return err
 	}
-	s.AddHttpHandler(defaultSchema, "/", s.primaryProxy)
+	s.AddHttpHandler(s.primarySchema, s.primaryPath, s.primaryProxy)
 	srv := http.Server{
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
