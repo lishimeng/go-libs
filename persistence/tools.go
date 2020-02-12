@@ -13,12 +13,18 @@ func CheckErr(err error) error {
 }
 
 type Pager struct {
-	PageNo     int
-	PageSize   int
+	PageNo     int // start with 1
+	PageSize   int // > 0
 	TotalPage  int
 	TotalCount int
-	FirstPage  bool
-	LastPage   bool
+}
+
+func (p *Pager) IsFirstPage() bool {
+	return p.PageNo == 1
+}
+
+func (p *Pager) IsLastPage() bool {
+	return p.PageNo == p.TotalPage
 }
 
 func (p *Pager) GetLimit() (limit int, start int) {
@@ -27,17 +33,31 @@ func (p *Pager) GetLimit() (limit int, start int) {
 	return limit, start
 }
 
-func BuildPager(count int, pageNo int, pageSize int) Pager {
-	tp := count / pageSize
-	if count%pageSize > 0 {
-		tp = count/pageSize + 1
+func (p *Pager) SetPageNo(no int) {
+	p.PageNo = no
+	p.update()
+}
+
+func (p *Pager) Next() {
+	p.SetPageNo(p.PageNo + 1)
+}
+
+func (p  *Pager) SetTotal(total int) {
+	p.TotalCount = total
+	p.update()
+}
+
+func (p *Pager) update() {
+	if p.TotalCount > 0 && p.PageSize > 0 {
+		tp := p.TotalCount / p.PageSize
+		if p.TotalCount%p.PageSize > 0 {
+			tp += 1
+		}
+		p.TotalPage = tp
 	}
-	return Pager{
-		PageNo:     pageNo,
-		PageSize:   pageSize,
-		TotalPage:  tp,
-		TotalCount: count,
-		FirstPage:  pageNo == 1,
-		LastPage:   pageNo == tp,
-	}
+}
+
+func BuildPager(pageNo int, pageSize int) Pager {
+	p := Pager{PageNo: pageNo, PageSize: pageSize}
+	return p
 }
