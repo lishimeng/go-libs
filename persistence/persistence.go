@@ -12,6 +12,10 @@ type Driver struct {
 	t    orm.DriverType
 }
 
+type BaseConfig struct {
+	InitDb bool
+}
+
 var DriverMysql = Driver{"mysql", orm.DRMySQL}
 var DriverSqlite = Driver{"sqlite3", orm.DRSqlite}
 var DriverOracle = Driver{"oracle", orm.DROracle}

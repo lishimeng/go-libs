@@ -7,6 +7,7 @@ import (
 
 type SqliteConfig struct {
 	Database string
+	ForceDdl bool
 }
 
 func InitSqliteOrm(config SqliteConfig) (context OrmContext, err error) {

@@ -6,16 +6,19 @@ import (
 )
 
 type MysqlConfig struct {
+	BaseConfig
 	Database string
 }
 
-func InitMysqlOrm(config SqliteConfig) (context OrmContext, err error) {
+func InitMysqlOrm(config MysqlConfig) (context OrmContext, err error) {
 	context = OrmContext{}
 	err = orm.RegisterDriver("mysql", orm.DRMySQL)
 	if err == nil {
 		err = orm.RegisterDataBase("default", "mysql", config.Database)
 		if err == nil {
-			err = orm.RunSyncdb("default", false, true)
+			if config.BaseConfig.ForceDdl {
+				err = orm.RunSyncdb("default", false, true)
+			}
 			context.Context = orm.NewOrm()
 		}
 	}

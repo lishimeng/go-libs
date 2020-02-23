@@ -7,15 +7,14 @@ import (
 )
 
 type PostgresConfig struct {
+	BaseConfig
 	UserName string
-
 	Password string
 	Host     string
 	Port     int
 	DbName   string
 	MaxIdle  int
 	MaxConn  int
-	InitDb   bool
 }
 
 //Initialize
