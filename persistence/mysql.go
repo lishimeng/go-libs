@@ -16,7 +16,7 @@ func InitMysqlOrm(config MysqlConfig) (context OrmContext, err error) {
 	if err == nil {
 		err = orm.RegisterDataBase("default", "mysql", config.Database)
 		if err == nil {
-			if config.BaseConfig.ForceDdl {
+			if config.BaseConfig.InitDb {
 				err = orm.RunSyncdb("default", false, true)
 			}
 			context.Context = orm.NewOrm()
