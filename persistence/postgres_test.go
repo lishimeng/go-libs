@@ -10,7 +10,7 @@ func TestInitPostgresOrm(t *testing.T) {
 		InitDb: false,
 	}
 	bc := c.Build()
-	if bc.AliasName != alias {
+	if bc.aliasName != alias {
 		t.Fatal("alias name")
 		return
 	}
