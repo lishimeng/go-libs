@@ -1,27 +1,30 @@
 package persistence
 
 import (
-	"github.com/astaxie/beego/orm"
+	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 )
 
 type MysqlConfig struct {
-	BaseConfig
-	Database string
+	InitDb    bool
+	AliasName string
+	UserName  string
+	Password  string
+	Host      string
+	Port      int
+	DbName    string
 }
 
-func InitMysqlOrm(config MysqlConfig) (context OrmContext, err error) {
-	context = OrmContext{}
-	err = orm.RegisterDriver("mysql", orm.DRMySQL)
-	if err == nil {
-		err = orm.RegisterDataBase("default", "mysql", config.Database)
-		if err == nil {
-			if config.BaseConfig.InitDb {
-				err = orm.RunSyncdb("default", false, true)
-			}
-			context.Context = orm.NewOrm()
-		}
+func (c *MysqlConfig) Build() (b BaseConfig) {
+
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", c.UserName, c.Password, c.Host, c.Port, c.DbName)
+	b = BaseConfig{
+		dataSource: dataSource,
+		aliasName:  c.AliasName,
+		driver: DriverMysql,
+		initDb:     c.InitDb,
 	}
 
-	return context, err
+	//b.params = append(b.params, c.MaxIdle, c.MaxConn)
+	return
 }

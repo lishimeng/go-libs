@@ -1,25 +1,18 @@
 package persistence
 
-import (
-	"github.com/astaxie/beego/orm"
-	//_ "github.com/mattn/go-sqlite3"
-)
-
 type SqliteConfig struct {
 	Database string
-	ForceDdl bool
+	AliasName  string
+	InitDb bool
 }
 
-func InitSqliteOrm(config SqliteConfig) (context OrmContext, err error) {
-	context = OrmContext{}
-	err = orm.RegisterDriver("sqlite", orm.DRSqlite)
-	if err == nil {
-		err = orm.RegisterDataBase("default", "sqlite3", config.Database)
-		if err == nil {
-			err = orm.RunSyncdb("default", false, true)
-			context.Context = orm.NewOrm()
-		}
-	}
+func (c *SqliteConfig) Build() (b BaseConfig) {
 
-	return context, err
+	b = BaseConfig{
+		dataSource: c.Database,
+		aliasName: c.AliasName,
+		driver: DriverSqlite,
+		initDb: c.InitDb,
+	}
+	return
 }

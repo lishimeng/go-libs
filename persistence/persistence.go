@@ -13,7 +13,11 @@ type Driver struct {
 }
 
 type BaseConfig struct {
-	InitDb bool
+	initDb bool
+	aliasName string
+	driver Driver
+	dataSource string
+	params []int
 }
 
 var DriverMysql = Driver{"mysql", orm.DRMySQL}
@@ -29,4 +33,21 @@ func RegisterDriver(driver Driver) (err error) {
 
 func RegisterModel(models ...interface{}) {
 	orm.RegisterModel(models...)
+}
+
+func InitOrm(config BaseConfig) (context OrmContext, err error) {
+
+	context = OrmContext{}
+	err = orm.RegisterDriver(config.driver.name, config.driver.t)
+	if err == nil {
+		err = orm.RegisterDataBase(config.aliasName, config.driver.name, config.dataSource, config.params...)
+		if err == nil {
+			if config.initDb {
+				err = orm.RunSyncdb(config.aliasName, false, true)
+			}
+			context.Context = orm.NewOrm()
+		}
+	}
+
+	return context, err
 }
