@@ -10,7 +10,7 @@ import (
 func TestGenToken(t *testing.T) {
 
 	h := New([]byte("secret"), "https://doudou.me", time.Hour * 3 * 24)
-	token, success := h.GenToken(Token{
+	c, token, success := h.GenToken(Token{
 		BaseToken: BaseToken{
 			UID: "U13413",
 			LoginType: 1,
@@ -29,7 +29,7 @@ func TestGenToken(t *testing.T) {
 		return
 	}
 
-	c, success := h.VerifyToken(token)
+	c, success = h.VerifyToken(token)
 	if !success {
 		t.Fatal("verify failed")
 		return

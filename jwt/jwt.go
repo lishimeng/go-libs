@@ -33,9 +33,9 @@ func New(key []byte, issuer string, expire time.Duration) Handler {
 	return Handler{key: key, issuer: issuer, expire: expire}
 }
 
-func (h *Handler) GenToken(t Token) (signedToken string, success bool) {
+func (h *Handler) GenToken(t Token) (claims *Claims, signedToken string, success bool) {
 
-	claims := Claims{
+	claims = &Claims{
 		BaseToken:      BaseToken{
 			UID: t.BaseToken.UID,
 			LoginType: t.BaseToken.LoginType,
@@ -50,7 +50,7 @@ func (h *Handler) GenToken(t Token) (signedToken string, success bool) {
 	if len(t.Subject) > 0 {
 		claims.StandardClaims.Subject = t.Subject
 	}
-	signedToken, success = h.CreateToken(&claims)
+	signedToken, success = h.CreateToken(claims)
 	return
 }
 
