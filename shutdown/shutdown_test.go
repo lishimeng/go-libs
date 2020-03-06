@@ -8,6 +8,7 @@ import (
 
 func TestWaitExit(t *testing.T) {
 
+	c := Context()
 	defer func() {
 		if err := recover(); err != nil {
 			t.Fatal(err)
@@ -18,7 +19,7 @@ func TestWaitExit(t *testing.T) {
 	go func() {
 		for {
 			select {
-			case <- ctx.Done():
+			case <- c.Done():
 				fmt.Println("ctx done")
 				return
 			default:

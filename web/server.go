@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"github.com/kataras/iris"
 	"net/http"
 )
@@ -78,7 +79,7 @@ func (s *Server) AddHttpHandler(schema string, pathGroup string, handler http.Ha
 	return s
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start(ctx context.Context) error {
 	if err := s.primaryProxy.Build(); err != nil {
 		return err
 	}
@@ -87,5 +88,6 @@ func (s *Server) Start() error {
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
 	}
+	_ = srv.Shutdown(ctx)
 	return srv.ListenAndServe()
 }
