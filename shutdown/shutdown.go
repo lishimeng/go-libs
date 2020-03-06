@@ -1,6 +1,7 @@
 package shutdown
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,6 +14,17 @@ type Configuration struct {
 
 var defaultSignals = []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 var exitChan = make(chan struct{ message string })
+
+var ctx context.Context
+var cancel context.CancelFunc
+
+func init(){
+	ctx, cancel = context.WithCancel(context.Background())
+}
+
+func Context() context.Context {
+	return ctx
+}
 
 func WaitExit(config *Configuration) {
 
@@ -40,6 +52,7 @@ func onExit(s string, config *Configuration) {
 		_ = recover()
 	}()
 
+	cancel()
 	if config != nil && config.BeforeExit != nil {
 		config.BeforeExit(s)
 	}
