@@ -89,10 +89,31 @@ func (s *Server) Start(ctx context.Context) error {
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
 	}
-	go func() {
-		time.Sleep(time.Second)
-		_ = srv.Shutdown(ctx)
-	}()
+	go s.shutdownFuture(&srv, ctx)
 
 	return srv.ListenAndServe()
+}
+
+func (s *Server) shutdownFuture(srv *http.Server, ctx context.Context) {
+	if ctx == nil {
+		return
+	}
+	var c context.Context
+	var cancel context.CancelFunc
+	defer func() {
+		if cancel != nil {
+			cancel()
+		}
+	}()
+	for {
+		select {
+		case <-ctx.Done():
+			c, cancel = context.WithTimeout(context.Background(), 3*time.Second)
+			if err := srv.Shutdown(c); nil != err {
+			}
+			return
+		default:
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 }
