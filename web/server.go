@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/kataras/iris"
 	"net/http"
+	"time"
 )
 
 type Component func(app *iris.Application)
@@ -88,6 +89,10 @@ func (s *Server) Start(ctx context.Context) error {
 		Addr:    s.config.Listen,
 		Handler: s.delegate,
 	}
-	_ = srv.Shutdown(ctx)
+	go func() {
+		time.Sleep(time.Second)
+		_ = srv.Shutdown(ctx)
+	}()
+
 	return srv.ListenAndServe()
 }
