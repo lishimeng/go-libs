@@ -2,7 +2,6 @@ package fixlength
 
 import (
 	"bytes"
-	"github.com/lishimeng/go-libs/log"
 	"github.com/lishimeng/go-libs/stream/pipeline/handler"
 )
 
@@ -25,13 +24,11 @@ func New(length int) handler.Handler {
 
 func (c *coder) Rx(input interface{}, ctx *handler.Context) (err error) {
 
-	log.Fine("byte raw decode")
 	if in, ok := input.([]byte); ok {
 		c.decodeBuf.Write(in)
 	}
 
 	for c.decodeBuf.Len() >= c.length {
-		log.Fine("build a frame")
 
 		p := make([]byte, c.length)
 		_, err = c.decodeBuf.Read(p)

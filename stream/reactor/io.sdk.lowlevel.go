@@ -1,12 +1,10 @@
 package reactor
 
 import (
-	"github.com/lishimeng/go-libs/log"
 	"io"
 )
 
 func (s *Stream) readLoop() {
-	log.Fine("start read loop")
 	defer func() {
 
 	}()
@@ -14,7 +12,6 @@ func (s *Stream) readLoop() {
 	for {
 		select {
 		case <-s.closeChan:
-			log.Fine("stop read loop")
 			return
 		case p := <-s.rxChan:
 			if s.dataListener != nil {
@@ -26,7 +23,6 @@ func (s *Stream) readLoop() {
 
 func (s *Stream) writeLoop() {
 
-	log.Fine("start write loop")
 	defer func() {
 
 	}()
@@ -34,7 +30,6 @@ func (s *Stream) writeLoop() {
 	for {
 		select {
 		case <-s.closeChan:
-			log.Fine("stop write loop")
 			return
 		case p := <-s.txChan:
 			_, err := s.Writer.Write(p)
@@ -47,7 +42,6 @@ func (s *Stream) writeLoop() {
 
 func (s *Stream) processLoop() {
 
-	log.Fine("start process loop")
 	defer func() {
 		close(s.rxChan)
 		close(s.txChan)
@@ -58,7 +52,6 @@ func (s *Stream) processLoop() {
 
 		if err != nil {
 			if err != io.EOF { // has error
-				log.Fine("read error:%v", err)
 				s.lostConnection(err)
 			}
 			break
@@ -76,7 +69,6 @@ func (s *Stream) processLoop() {
 				s.syncChan <- true
 			}
 		} else {
-			log.Fine("读到%d个", n)
 		}
 	}
 }
