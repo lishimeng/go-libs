@@ -1,13 +1,13 @@
 package web
 
 type Response struct {
-	Code *int `json:"code"`
-	Success *bool `json:"success"`
+	Code *int `json:"code,omitempty"`
+	Success *bool `json:"success,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
 type Pager struct {
-	Count int `json:"count"`
+	Count int `json:"count,omitempty"`
 	Data []interface{} `json:"data,omitempty"`
 }
 
